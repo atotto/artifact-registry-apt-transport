@@ -106,6 +106,11 @@ func (m *Method) initClient(ctx context.Context) error {
 	}
 
 	var ts oauth2.TokenSource
+	if token := os.Getenv("CLOUDSDK_AUTH_ACCESS_TOKEN"); token != "" {
+		ts = oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
+		m.client = oauth2.NewClient(ctx, ts)
+		return nil
+	}
 	switch {
 	case m.config.serviceAccountJSON != "":
 		json, err := os.ReadFile(m.config.serviceAccountJSON)

@@ -120,6 +120,33 @@ func (d fakeDownloader) download(_ io.ReadCloser, _ string) (string, error) {
 	return "ABCDEFGHI", nil
 }
 
+func TestInitClientCloudSDKAuthAccessToken(t *testing.T) {
+	t.Setenv("CLOUDSDK_AUTH_ACCESS_TOKEN", "fake-access-token")
+
+	m := &Method{config: &aptMethodConfig{}}
+	ctx := context.Background()
+	if err := m.initClient(ctx); err != nil {
+		t.Fatalf("initClient failed: %v", err)
+	}
+	if m.client == nil {
+		t.Fatal("expected client to be set, got nil")
+	}
+}
+
+func TestInitClientCloudSDKAuthAccessTokenTakesPrecedence(t *testing.T) {
+	t.Setenv("CLOUDSDK_AUTH_ACCESS_TOKEN", "fake-access-token")
+
+	// Even though serviceAccountEmail is set, CLOUDSDK_AUTH_ACCESS_TOKEN should take precedence.
+	m := &Method{config: &aptMethodConfig{serviceAccountEmail: "email@domain"}}
+	ctx := context.Background()
+	if err := m.initClient(ctx); err != nil {
+		t.Fatalf("initClient failed: %v", err)
+	}
+	if m.client == nil {
+		t.Fatal("expected client to be set, got nil")
+	}
+}
+
 func TestAptMethodRun(t *testing.T) {
 
 	stdinreader, stdinwriter := io.Pipe()
