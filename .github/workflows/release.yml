@@ -53,10 +53,9 @@ jobs:
       - name: Collect and rename .deb
         id: artifact
         run: |
-          TAG="${{ steps.version.outputs.tag }}"
           ARCH="${{ matrix.arch }}"
           DEB_FILE=$(ls ../*.deb | head -1)
-          DEST="apt-transport-artifact-registry_${TAG}_${ARCH}.deb"
+          DEST="apt-transport-artifact-registry_${ARCH}.deb"
           cp "${DEB_FILE}" "${DEST}"
           echo "deb_file=${DEST}" >> "$GITHUB_OUTPUT"
 
